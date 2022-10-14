@@ -20,20 +20,20 @@ use chrono_tz::Tz;
 use num_traits::AsPrimitive;
 
 pub trait DateConverter {
-    fn to_date(&self, tz: &Tz) -> Date<Tz>;
-    fn to_timestamp(&self, tz: &Tz) -> DateTime<Tz>;
+    fn to_date(&self, tz: Tz) -> Date<Tz>;
+    fn to_timestamp(&self, tz: Tz) -> DateTime<Tz>;
 }
 
 impl<T> DateConverter for T
 where T: AsPrimitive<i64>
 {
-    fn to_date(&self, tz: &Tz) -> Date<Tz> {
+    fn to_date(&self, tz: Tz) -> Date<Tz> {
         let mut dt = tz.ymd(1970, 1, 1);
         dt = dt.checked_add_signed(Duration::days(self.as_())).unwrap();
         dt
     }
 
-    fn to_timestamp(&self, tz: &Tz) -> DateTime<Tz> {
+    fn to_timestamp(&self, tz: Tz) -> DateTime<Tz> {
         // Can't use `tz.timestamp_nanos(self.as_() * 1000)` directly, is may cause multiply with overflow.
         let micros = self.as_();
         let (mut secs, mut nanos) = (micros / 1_000_000, (micros % 1_000_000) * 1_000);

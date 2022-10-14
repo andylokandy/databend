@@ -61,24 +61,10 @@ pub fn transform_expr(ast: common_ast::ast::Expr, columns: &[(&str, DataType)]) 
             expr,
             target_type,
             ..
-        } => match target_type {
-            TypeName::Timestamp { .. } => RawExpr::FunctionCall {
-                span: transform_span(span),
-                name: "to_timestamp".to_string(),
-                args: vec![transform_expr(*expr, columns)],
-                params: vec![],
-            },
-            TypeName::Date => RawExpr::FunctionCall {
-                span: transform_span(span),
-                name: "to_date".to_string(),
-                args: vec![transform_expr(*expr, columns)],
-                params: vec![],
-            },
-            _ => RawExpr::Cast {
+        } =>  RawExpr::Cast {
                 span: transform_span(span),
                 expr: Box::new(transform_expr(*expr, columns)),
                 dest_type: transform_data_type(target_type),
-            },
         },
         common_ast::ast::Expr::TryCast {
             span,
@@ -86,23 +72,10 @@ pub fn transform_expr(ast: common_ast::ast::Expr, columns: &[(&str, DataType)]) 
             target_type,
             ..
         } => match target_type {
-            TypeName::Timestamp { .. } => RawExpr::FunctionCall {
-                span: transform_span(span),
-                name: "try_to_timestamp".to_string(),
-                args: vec![transform_expr(*expr, columns)],
-                params: vec![],
-            },
-            TypeName::Date => RawExpr::FunctionCall {
-                span: transform_span(span),
-                name: "try_to_date".to_string(),
-                args: vec![transform_expr(*expr, columns)],
-                params: vec![],
-            },
-            _ => RawExpr::TryCast {
+             RawExpr::TryCast {
                 span: transform_span(span),
                 expr: Box::new(transform_expr(*expr, columns)),
                 dest_type: transform_data_type(target_type),
-            },
         },
         common_ast::ast::Expr::FunctionCall {
             span,

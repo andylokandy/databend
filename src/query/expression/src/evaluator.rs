@@ -250,11 +250,11 @@ impl<'a> Evaluator<'a> {
             }
 
             (Scalar::Timestamp(ts), DataType::String) => Ok(Scalar::String(
-                timestamp_to_string(ts, &self.tz).as_bytes().to_vec(),
+                timestamp_to_string(ts, self.tz).as_bytes().to_vec(),
             )),
 
             (Scalar::Date(d), DataType::String) => Ok(Scalar::String(
-                date_to_string(d, &self.tz).as_bytes().to_vec(),
+                date_to_string(d, self.tz).as_bytes().to_vec(),
             )),
 
             // identical types
@@ -415,7 +415,7 @@ impl<'a> Evaluator<'a> {
                 // "YYYY-mm-DD HH:MM:SS.ssssss"
                 let mut builder = StringColumnBuilder::with_capacity(col.len(), col.len() * 26);
                 for val in col.iter() {
-                    let s = timestamp_to_string(*val, &self.tz);
+                    let s = timestamp_to_string(*val, self.tz);
                     builder.put_str(s.as_str());
                     builder.commit_row();
                 }
@@ -427,7 +427,7 @@ impl<'a> Evaluator<'a> {
                 // "YYYY-mm-DD"
                 let mut builder = StringColumnBuilder::with_capacity(col.len(), col.len() * 10);
                 for &val in col.iter() {
-                    let s = date_to_string(val, &self.tz);
+                    let s = date_to_string(val, self.tz);
                     builder.put_str(s.as_str());
                     builder.commit_row();
                 }
@@ -623,7 +623,7 @@ impl<'a> Evaluator<'a> {
                 // "YYYY-mm-DD HH:MM:SS.ssssss"
                 let mut builder = StringColumnBuilder::with_capacity(col.len(), col.len() * 26);
                 for val in col.iter() {
-                    let s = timestamp_to_string(*val, &self.tz);
+                    let s = timestamp_to_string(*val, self.tz);
                     builder.put_str(s.as_str());
                     builder.commit_row();
                 }
@@ -639,7 +639,7 @@ impl<'a> Evaluator<'a> {
                 // "YYYY-mm-DD"
                 let mut builder = StringColumnBuilder::with_capacity(col.len(), col.len() * 10);
                 for &val in col.iter() {
-                    let s = date_to_string(val, &self.tz);
+                    let s = date_to_string(val, self.tz);
                     builder.put_str(s.as_str());
                     builder.commit_row();
                 }

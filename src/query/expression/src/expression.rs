@@ -23,16 +23,17 @@ use serde::Serialize;
 use crate::function::Function;
 use crate::function::FunctionID;
 use crate::function::FunctionRegistry;
-use crate::types::DataType;
+use crate::types::DataType;2
 use crate::values::Scalar;
 
 pub type Span = Option<std::ops::Range<usize>>;
 
 #[derive(Debug, Clone)]
 pub enum RawExpr {
-    Literal {
+    Constant {
         span: Span,
-        lit: Literal,
+        scalar: Scalar,
+        data_type: DataType,
     },
     ColumnRef {
         span: Span,
@@ -120,23 +121,6 @@ pub enum RemoteExpr {
     },
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Literal {
-    Null,
-    Int8(i8),
-    Int16(i16),
-    Int32(i32),
-    Int64(i64),
-    UInt8(u8),
-    UInt16(u16),
-    UInt32(u32),
-    UInt64(u64),
-    Float32(f32),
-    Float64(f64),
-    Boolean(bool),
-    String(Vec<u8>),
-}
-
 impl RawExpr {
     pub fn column_refs(&self) -> HashSet<usize> {
         fn walk(expr: &RawExpr, buf: &mut HashSet<usize>) {
@@ -147,7 +131,7 @@ impl RawExpr {
                 RawExpr::Cast { expr, .. } => walk(expr, buf),
                 RawExpr::TryCast { expr, .. } => walk(expr, buf),
                 RawExpr::FunctionCall { args, .. } => args.iter().for_each(|expr| walk(expr, buf)),
-                RawExpr::Literal { .. } => (),
+                RawExpr::Constant { .. } => (),
             }
         }
 
