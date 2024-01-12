@@ -19,6 +19,7 @@ use std::sync::Arc;
 use databend_common_catalog::table_context::TableContext;
 use databend_common_exception::ErrorCode;
 use databend_common_exception::Result;
+use databend_common_expression::type_check::check_cast;
 use databend_common_expression::types::DataType;
 use databend_common_expression::ComputedExpr;
 use databend_common_expression::ConstantFolder;
@@ -147,15 +148,8 @@ impl UpdatePlan {
         let mut remote_exprs = BTreeMap::new();
         for (i, f) in schema.fields().iter().enumerate() {
             if let Some(ComputedExpr::Stored(stored_expr)) = f.computed_expr() {
-                let mut expr = parse_computed_expr(ctx.clone(), schema.clone(), stored_expr)?;
-                if expr.data_type() != f.data_type() {
-                    expr = Expr::Cast {
-                        span: None,
-                        is_try: f.data_type().is_nullable(),
-                        expr: Box::new(expr),
-                        dest_type: f.data_type().clone(),
-                    };
-                }
+                let expr = parse_computed_expr(ctx.clone(), schema.clone(), stored_expr)?;
+                let expr = check_cast(None, false, f.data_type().clone(), &BUILTIN_FUNCTIONS)?;
 
                 // If related column has updated, the stored computed column need to regenerate.
                 let mut need_update = false;
